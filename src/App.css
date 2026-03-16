@@ -141,7 +141,7 @@ header h1 {
   background: var(--primary-bg);
   /* position: sticky;
   top: 0; */
-  z-index: 10; 
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -167,7 +167,7 @@ header h1 {
 
 .player-card:hover {
   transform: translateY(-8px);
-  z-index: 20; 
+  z-index: 20;
   border-color: var(--accent-green);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
 }
@@ -183,7 +183,9 @@ header h1 {
   cursor: pointer;
 }
 
-.btn-leave-x:hover { color: var(--accent-red); }
+.btn-leave-x:hover {
+  color: var(--accent-red);
+}
 
 .stats-container {
   display: flex;
@@ -213,8 +215,13 @@ header h1 {
   font-weight: 700;
 }
 
-.stat-box.in { border-bottom: 3px solid #3498db; }
-.stat-box.out { border-bottom: 3px solid #f1c40f; }
+.stat-box.in {
+  border-bottom: 3px solid #3498db;
+}
+
+.stat-box.out {
+  border-bottom: 3px solid #f1c40f;
+}
 
 .profit-badge {
   text-align: center;
@@ -225,12 +232,28 @@ header h1 {
   flex-direction: column;
 }
 
-.profit-badge.plus { background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); }
-.profit-badge.minus { background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); }
+.profit-badge.plus {
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.2);
+}
 
-.profit-amount { font-size: 26px; font-weight: 900; }
-.plus .profit-amount { color: var(--accent-green); }
-.minus .profit-amount { color: var(--accent-red); }
+.profit-badge.minus {
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.profit-amount {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.plus .profit-amount {
+  color: var(--accent-green);
+}
+
+.minus .profit-amount {
+  color: var(--accent-red);
+}
 
 .card-actions {
   display: grid;
@@ -246,14 +269,29 @@ header h1 {
   color: white;
 }
 
-.btn-buyin-action { border: 1px solid var(--accent-green) !important; color: var(--accent-green) !important; }
-.btn-cashout-action { border: 1px solid var(--accent-red) !important; color: var(--accent-red) !important; }
-.btn-sell-action { grid-column: span 2; border: 1px solid #9b59b6 !important; color: #9b59b6 !important; }
+.btn-buyin-action {
+  border: 1px solid var(--accent-green) !important;
+  color: var(--accent-green) !important;
+}
+
+.btn-cashout-action {
+  border: 1px solid var(--accent-red) !important;
+  color: var(--accent-red) !important;
+}
+
+.btn-sell-action {
+  grid-column: span 2;
+  border: 1px solid #9b59b6 !important;
+  color: #9b59b6 !important;
+}
 
 /* --- MODAL STYLES --- */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
@@ -278,7 +316,11 @@ header h1 {
   padding: 20px 0;
 }
 
-.input-group { display: flex; flex-direction: column; gap: 10px; }
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .input-group label {
   font-size: 11px;
@@ -291,10 +333,11 @@ header h1 {
 }
 
 /* FIX: Select & Options colors */
-.modal-body select, 
+.modal-body select,
 .modal-body input {
   width: 100%;
-  background: #2c313a; /* Nền tối cố định */
+  background: #2c313a;
+  /* Nền tối cố định */
   border: 2px solid var(--border-color);
   border-radius: 14px;
   padding: 14px 18px;
@@ -305,7 +348,8 @@ header h1 {
 }
 
 .modal-body select option {
-  background-color: #1a1d21; /* Nền tối cho dropdown list */
+    /* Nền tối cho dropdown list */
+  background-color: #1a1d21;
   color: white;
 }
 
@@ -315,9 +359,17 @@ header h1 {
   -webkit-appearance: none;
   margin: 0;
 }
-.modal-body input[type=number] { -moz-appearance: textfield; }
 
-.input-with-suffix { position: relative; display: flex; align-items: center; }
+.modal-body input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.input-with-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .input-with-suffix .suffix {
   position: absolute;
   right: 18px;
@@ -327,9 +379,25 @@ header h1 {
   pointer-events: none;
 }
 
-.modal-footer { display: flex; gap: 12px; margin-top: 10px; }
-.btn-confirm { background: var(--accent-green); color: #000; flex: 2; padding: 14px; }
-.btn-cancel { background: #343a40; color: white; flex: 1; padding: 14px; }
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-confirm {
+  background: var(--accent-green);
+  color: #000;
+  flex: 2;
+  padding: 14px;
+}
+
+.btn-cancel {
+  background: #343a40;
+  color: white;
+  flex: 1;
+  padding: 14px;
+}
 
 /* --- SUMMARY --- */
 .summary {
@@ -343,16 +411,34 @@ header h1 {
   margin-top: 20px;
 }
 
-.sum-item strong { font-size: 24px; color: var(--accent-green); display: block; }
-.sum-item span { font-size: 11px; text-transform: uppercase; color: var(--text-dim); }
+.sum-item strong {
+  font-size: 24px;
+  color: var(--accent-green);
+  display: block;
+}
+
+.sum-item span {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
 
 /* Global Button */
-button { border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-button:active { transform: scale(0.95); }
+button {
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+button:active {
+  transform: scale(0.95);
+}
 
 /* --- CẬP NHẬT GAME SETTINGS TRONG SIDEBAR --- */
 .game-settings {
-  background: rgba(0, 0, 0, 0.2); 
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 16px;
@@ -370,7 +456,8 @@ button:active { transform: scale(0.95); }
 
 .settings-body {
   display: flex;
-  flex-direction: column; /* Quan trọng: Chuyển thành hàng dọc để vừa Sidebar */
+  flex-direction: column;
+  /* Quan trọng: Chuyển thành hàng dọc để vừa Sidebar */
   gap: 15px;
 }
 
@@ -378,7 +465,7 @@ button:active { transform: scale(0.95); }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 100% !important; 
+  width: 100% !important;
 }
 
 .setting-item label {
@@ -401,7 +488,8 @@ button:active { transform: scale(0.95); }
 .setting-item .modern-input {
   padding: 10px 12px !important;
   font-size: 13px !important;
-  background: #1a1d21 !important; /* Làm tối hơn một chút so với card */
+  background: #1a1d21 !important;
+  /* Làm tối hơn một chút so với card */
 }
 
 /* 1. Xóa bỏ hoàn toàn các nút tăng giảm mặc định */
@@ -412,7 +500,8 @@ button:active { transform: scale(0.95); }
 }
 
 .modern-input[type=number] {
-  -moz-appearance: textfield; /* Cho Firefox */
+  -moz-appearance: textfield;
+  /* Cho Firefox */
 }
 
 /* 2. Style cho Group bao quanh input */
@@ -426,11 +515,13 @@ button:active { transform: scale(0.95); }
 /* 3. Style chi tiết cho ô input */
 .modern-input {
   width: 100%;
-  background: #1e2229 !important; /* Màu nền tối sâu */
+    /* Màu nền tối sâu */
+  background: #1e2229 !important;
   border: 2px solid var(--border-color) !important;
   border-radius: 12px !important;
   padding: 12px 16px !important;
-  padding-right: 65px !important; /* Chừa chỗ cho badge 'chips' */
+    /* Chừa chỗ cho badge 'chips' */
+  padding-right: 65px !important;
   color: #ffffff !important;
   font-size: 15px !important;
   font-weight: 600 !important;
@@ -453,13 +544,16 @@ button:active { transform: scale(0.95); }
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  pointer-events: none; /* Tránh cản trở khi click */
+    /* Tránh cản trở khi click */
+  pointer-events: none;
 }
 
 /* --- HISTORY LOG TỐI GIẢN & TRONG SUỐT --- */
 .history-log {
-  background: transparent !important; /* Trong suốt hoàn toàn */
-  border: 1px dashed rgba(255, 255, 255, 0.1); /* Viền đứt nét nhẹ */
+    /* Trong suốt hoàn toàn */
+  background: transparent !important;
+    /* Viền đứt nét nhẹ */
+  border: 1px dashed rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 10px;
   margin-top: 20px;
@@ -478,9 +572,10 @@ button:active { transform: scale(0.95); }
   margin: 0;
   list-style: none;
   /* FIX CUỘN: Cố định chiều cao và cho phép cuộn dọc */
-  max-height: 180px; 
-  overflow-y: auto !important; 
-  display: block; /* Đảm bảo là khối để cuộn hoạt động */
+  max-height: 180px;
+  overflow-y: auto !important;
+    /* Đảm bảo là khối để cuộn hoạt động */
+  display: block;
 }
 
 .history-log li {
@@ -513,7 +608,8 @@ button:active { transform: scale(0.95); }
 }
 
 .history-log ul::-webkit-scrollbar-thumb {
-  background: rgba(46, 204, 113, 0.3); /* Màu xanh mờ */
+  background: rgba(46, 204, 113, 0.3);
+  /* Màu xanh mờ */
   border-radius: 10px;
 }
 
@@ -522,7 +618,7 @@ button:active { transform: scale(0.95); }
 }
 
 .history-log ul {
-  max-height: 250px; 
+  max-height: 250px;
 }
 
 .log-footer {
@@ -544,28 +640,48 @@ button:active { transform: scale(0.95); }
   cursor: pointer;
 }
 
-.btn-clear-log:hover { opacity: 1; }
+.btn-clear-log:hover {
+  opacity: 1;
+}
+
+.btn-clear-log:disabled {
+  /* Use !important to kill the red from the base class */
+  color: #555 !important; 
+  background: transparent !important;
+  border: 1px solid #333 !important;
+  
+  /* Visual cues for 'locked' */
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(1);
+  box-shadow: none !important;
+  transform: none !important;
+}
 
 /* --- RESPONSIVE CHO IPAD (Dưới 1024px) --- */
 @media (max-width: 1024px) {
   .main-layout {
-    flex-direction: column; /* Đẩy Sidebar lên trên hoặc xuống dưới Grid */
+    flex-direction: column;
+    /* Đẩy Sidebar lên trên hoặc xuống dưới Grid */
     gap: 20px;
   }
 
   .player-management {
-    width: 100%; /* Sidebar chiếm hết chiều ngang */
-    position: relative; /* Không cần sticky nữa vì grid sẽ nằm dưới */
+    width: 100%;
+    /* Sidebar chiếm hết chiều ngang */
+    position: relative;
+    /* Không cần sticky nữa vì grid sẽ nằm dưới */
     top: 0;
   }
 
   .bank-list {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Hiện nhiều cột hơn trên iPad */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    /* Hiện nhiều cột hơn trên iPad */
   }
 
   /* Tăng kích thước nút cho ngón tay dễ bấm */
   button {
-    min-height: 40px; 
+    min-height: 40px;
     font-size: 14px !important;
   }
 
@@ -576,9 +692,14 @@ button:active { transform: scale(0.95); }
 }
 
 /* --- FIX CHO RETINA DISPLAY --- */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .player-card, .modern-input, .history-log {
-    border-width: 1.5px !important; /* Viền dày hơn một chút để trông sắc nét */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+  .player-card,
+  .modern-input,
+  .history-log {
+    border-width: 1.5px !important;
+    /* Viền dày hơn một chút để trông sắc nét */
   }
 }
 
@@ -591,7 +712,8 @@ button:active { transform: scale(0.95); }
 .btn-end-game {
   width: 100%;
   padding: 12px;
-  background-color: #f39c12; /* Màu vàng cam */
+  background-color: #f39c12;
+  /* Màu vàng cam */
   color: white;
   border: none;
   border-radius: 8px;
@@ -697,19 +819,35 @@ button:active { transform: scale(0.95); }
 
 /* Undo button*/
 /* Layout for the Log Header */
-.log-header-actions {
+/* Container to hold the Title and Button */
+.log-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   margin-bottom: 12px;
 }
 
-/* The beautiful Undo Button */
+/* Restoring your beautiful Undo Button in the new position */
 .btn-revert-action {
-  background: linear-gradient(135deg, #f39c12, #d35400);
+  /* Dimensions - Locking these ensures size never changes */
+  height: 24px;
+  /* Fixed height */
+  padding: 0 14px;
+  /* Horizontal padding only */
+  display: flex;
+  /* Use flex to center text/icon vertically */
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  /* Prevents text from pushing boundaries */
+  box-sizing: border-box;
+  /* Ensures padding doesn't add to height */
+
+  /* Your Beautiful Styles */
+  background: linear-gradient(135deg, #f39c12, #d35400) !important;
   color: white;
   border: none;
-  padding: 6px 14px;
   border-radius: 50px;
   font-size: 10px;
   font-weight: 800;
@@ -717,18 +855,35 @@ button:active { transform: scale(0.95); }
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(211, 84, 0, 0.3);
   transition: transform 0.2s, filter 0.2s;
+
+  margin: 0;
+  white-space: nowrap;
 }
 
 .btn-revert-action:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  /* Reduced from 2px to keep it stable */
   filter: brightness(1.1);
 }
 
 .btn-revert-action:disabled {
-  background: #2c313a;
+  /* Crucial: Must match enabled size exactly */
+  height: 24px;
+  padding: 0 14px;
+
+  background: #2c313a !important;
   box-shadow: none;
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
+  /* Prevent any movement when disabled */
+}
+
+/* Ensure title doesn't shift the header height */
+.log-header h3 {
+  margin: 0;
+  line-height: 24px;
+  /* Matches button height for perfect alignment */
 }
 
 /* Bulk buy in */
@@ -759,4 +914,30 @@ button:active { transform: scale(0.95); }
   opacity: 0.3;
   cursor: not-allowed;
   filter: grayscale(1);
+}
+
+/* Real-time Validation Styling */
+input.invalid-limit {
+  border-color: var(--accent-red) !important;
+  background: rgba(231, 76, 60, 0.05) !important;
+  color: var(--accent-red) !important;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.2) !important;
+  animation: shake 0.2s ease-in-out;
+  /* Optional: adds a little physical feedback */
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
 }

@@ -54,10 +54,15 @@ function App() {
     const confirmRevert = window.confirm(`Revert: "${lastAction.msg}"?`);
     if (!confirmRevert) return;
 
-    // Use the .map pattern we discussed to stay clean
     let newPlayers = [...activePlayers];
 
-    if (lastAction.msg.includes("Buy-in")) {
+    // --- NEW: Handle Bulk Revert ---
+    if (lastAction.msg.includes("Bulk Buy-in")) {
+      // Reverting bulk sets everyone back to 0 buy-in
+      newPlayers = newPlayers.map(p => ({ ...p, buyIn: 0 }));
+    }
+    // --- Existing logic for specific players ---
+    else if (lastAction.msg.includes("Buy-in")) {
       const name = lastAction.msg.split(" Buy-in")[0];
       const amount = parseInt(lastAction.msg.replace(/,/g, "").match(/\d+/));
       newPlayers = newPlayers.map(p => p.name === name ? { ...p, buyIn: p.buyIn - amount } : p);
@@ -67,21 +72,12 @@ function App() {
       const amount = parseInt(lastAction.msg.replace(/,/g, "").match(/\d+/));
       newPlayers = newPlayers.map(p => p.name === name ? { ...p, cashOut: p.cashOut - amount } : p);
     }
-    else if (lastAction.msg.includes("sold")) {
-      const parts = lastAction.msg.split(" ");
-      const sellerName = parts[0];
-      const amount = parseInt(parts[2].replace(/,/g, ""));
-      const buyerName = parts[parts.length - 1];
-      newPlayers = newPlayers.map(p => {
-        if (p.name === sellerName) return { ...p, cashOut: p.cashOut - amount };
-        if (p.name === buyerName) return { ...p, buyIn: p.buyIn - amount };
-        return p;
-      });
-    }
+    // ... (keep your "sold" logic here)
 
     setActivePlayers(newPlayers);
     setHistory(history.slice(1));
   };
+
   const handleBulkBuyIn = () => {
     const amount = parseInt(prompt("Enter default Buy-in amount for ALL players:"));
     if (isNaN(amount) || amount <= 0) return;
@@ -97,7 +93,8 @@ function App() {
         buyIn: amount
       }));
       setActivePlayers(updatedPlayers);
-      // Note: No setHistory here as requested
+      const logMsg = `Bulk Buy-in: ${amount.toLocaleString()} for all players`;
+      setHistory(prev => [{ msg: logMsg, time: new Date().toLocaleTimeString(), isBulk: true, amount: amount }, ...prev]);
     }
   };
 
@@ -110,9 +107,12 @@ function App() {
       // Giữ lại settings hoặc xóa tùy bạn
     }
   };
-
-
-
+  const [modalConfig, setModalConfig] = useState({
+    show: false,
+    type: '', // 'buyin' or 'cashout'
+    player: null,
+    amount: ''
+  });
 
   const isDuplicate = playerBank.includes(newBankName.trim()) && newBankName.trim() !== "";
 
@@ -141,42 +141,63 @@ function App() {
     }
   };
 
-  const handleBuyIn = (index) => {
-    const val = prompt(`Nhập Buy-in thêm cho ${activePlayers[index].name}:`);
+  const isOverLimit =
+    modalConfig.type === 'buyin' &&
+    (modalConfig.player.buyIn + (parseInt(modalConfig.amount) || 0) > parseInt(gameSettings.maxBuyInAmount));
 
-    if (val && !isNaN(val)) {
-      const inputAmount = parseInt(val);
-
-      if (inputAmount > gameSettings.maxBuyInAmount) {
-        alert(`❌ Không thể nạp! Số tiền tối đa cho phép là ${gameSettings.maxBuyInAmount.toLocaleString()} chips.`);
-        return;
-      }
-
-      const newPlayers = [...activePlayers];
-      newPlayers[index].buyIn += inputAmount;
-      setActivePlayers(newPlayers);
-
-      setHistory([{
-        id: Date.now(),
-        msg: `${activePlayers[index].name} Buy-in +${inputAmount.toLocaleString()}`,
-        timestamp: new Date().toLocaleTimeString()
-      }, ...history]);
-    }
+  const openModal = (player, type) => {
+    setModalConfig({
+      show: true,
+      type: type,
+      player: player,
+      amount: '' // Start empty for clean entry
+    });
   };
 
-  const handleCashOut = (index) => {
-    const val = prompt(`Nhập Cash-out cho ${activePlayers[index].name}:`);
-    if (val && !isNaN(val)) {
-      const newPlayers = [...activePlayers];
-      newPlayers[index].cashOut += parseInt(val);
-      setActivePlayers(newPlayers);
+  const closeModal = () => {
+    setModalConfig({ show: false, type: '', player: null, amount: '' });
+  };
 
-      setHistory([{
-        id: Date.now(),
-        msg: `${activePlayers[index].name} Cash-out ${parseInt(val).toLocaleString()}`,
-        timestamp: new Date().toLocaleTimeString()
-      }, ...history]);
+  const handleConfirmAction = () => {
+    const { player, type, amount } = modalConfig;
+    const numAmount = parseInt(amount);
+
+    // 1. Validation: Check if it's a valid number and greater than 0
+    if (isNaN(numAmount) || numAmount <= 0) return;
+
+    // 2. Max Buy-in Check
+    if (type === 'buyin') {
+      const maxLimit = parseInt(gameSettings.maxBuyInAmount);
+      if (player.buyIn + numAmount > maxLimit) {
+        // Since we added the red border, this is just a final safety net
+        return;
+      }
     }
+
+    // 3. Update Players using functional update (prev)
+    setActivePlayers(prevPlayers => prevPlayers.map(p => {
+      if (p.name === player.name) {
+        return {
+          ...p,
+          buyIn: type === 'buyin' ? p.buyIn + numAmount : p.buyIn,
+          cashOut: type === 'cashout' ? p.cashOut + numAmount : p.cashOut
+        };
+      }
+      return p;
+    }));
+
+    // 4. Update History
+    const logMsg = type === 'buyin'
+      ? `${player.name} Buy-in +${numAmount.toLocaleString()}`
+      : `${player.name} Cash-out +${numAmount.toLocaleString()}`;
+
+    setHistory(prevHistory => [
+      { msg: logMsg, time: new Date().toLocaleTimeString() },
+      ...prevHistory
+    ]);
+
+    // 5. Cleanup
+    closeModal();
   };
 
   const executeTransfer = () => {
@@ -298,9 +319,19 @@ function App() {
 
           {/* HIỂN THỊ GAME LOG TRONG SIDEBAR */}
           <section className="history-log">
-            <h3>📜 Game Log</h3>
+            {/* Wrap title and button in a header div */}
+            <div className="log-header">
+              <h3>📜 Game Log</h3>
+              <button
+                className="btn-revert-action"
+                onClick={revertLastAction}
+                disabled={history.length === 0}
+              >
+                ↩️ Undo
+              </button>
+            </div>
+
             <ul>
-              {/* Đã xóa .slice(), hiển thị tất cả log có trong state */}
               {history.map(item => (
                 <li key={item.id}>
                   <small>{item.timestamp}</small>
@@ -308,13 +339,19 @@ function App() {
                 </li>
               ))}
             </ul>
+
             <div className="log-footer">
               <span>Events: {history.length}</span>
-              <button className="btn-clear-log" onClick={() => setHistory([])}>Clear</button>
+              <button
+                className="btn-clear-log"
+                onClick={() => setHistory([])}
+                /* Button is disabled if there are any players at the table */
+                disabled={activePlayers.length > 0}
+                title={activePlayers.length > 0 ? "Cannot clear log while game is active" : ""}
+              >
+                Clear
+              </button>
             </div>
-            <button className="btn-revert-action" onClick={revertLastAction} disabled={history.length === 0}>
-              ↩️ Undo
-            </button>
           </section>
 
           {/* --- GAME SETTINGS GỘP CẢ ADMIN ACTIONS --- */}
@@ -388,8 +425,12 @@ function App() {
                     <span className="profit-amount">{profit >= 0 ? '+' : ''}{profit.toLocaleString()}</span>
                   </div>
                   <div className="card-actions">
-                    <button className="btn-buyin-action" onClick={() => handleBuyIn(index)}>Buy In</button>
-                    <button className="btn-cashout-action" onClick={() => handleCashOut(index)}>Cash Out</button>
+                    <button className="btn-buyin-action" onClick={() => openModal(player, 'buyin')}>
+                      BUY IN
+                    </button>
+                    <button className="btn-cashout-action" onClick={() => openModal(player, 'cashout')}>
+                      CASH OUT
+                    </button>
                     <button className="btn-sell-action" onClick={() => setTransferData({ ...transferData, show: true, sellerIndex: index })}>Sell Chips</button>
                   </div>
                 </div>
@@ -437,6 +478,52 @@ function App() {
             <div className="modal-footer">
               <button className="btn-cancel" onClick={() => setTransferData({ show: false, sellerIndex: null, buyerIndex: "", amount: "" })}>Hủy</button>
               <button className="btn-confirm" onClick={executeTransfer}>Xác nhận Sell</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {modalConfig.show && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 style={{ color: modalConfig.type === 'buyin' ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                {modalConfig.type === 'buyin' ? '💰 ADD BUY-IN' : '💵 CASH OUT'}
+              </h2>
+              <p>{modalConfig.player.name}</p>
+            </div>
+
+            <div className="modal-body">
+              <div className="input-group">
+                <label>ENTER AMOUNT</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    autoFocus
+                    placeholder="0"
+                    className={isOverLimit ? 'invalid-limit' : ''} // Dynamic class
+                    value={modalConfig.amount}
+                    onChange={(e) => setModalConfig({ ...modalConfig, amount: e.target.value })}
+                    onKeyDown={(e) => e.key === 'Enter' && !isOverLimit && handleConfirmAction()}
+                  />
+                  <span className="suffix">CHIPS</span>
+                </div>
+                {isOverLimit && (
+                  <p style={{ color: 'var(--accent-red)', fontSize: '11px', marginTop: '8px', fontWeight: 'bold' }}>
+                    ⚠️ Exceeds Max Limit of {parseInt(gameSettings.maxBuyInAmount).toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={closeModal}>CANCEL</button>
+              <button
+                className="btn-confirm"
+                style={{ background: modalConfig.type === 'buyin' ? 'var(--accent-green)' : 'var(--accent-red)' }}
+                onClick={handleConfirmAction}
+              >
+                CONFIRM
+              </button>
             </div>
           </div>
         </div>
