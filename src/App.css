@@ -1,38 +1,762 @@
+:root {
+  --primary-bg: #121417;
+  --sidebar-bg: #1a1d21;
+  --card-bg: #24272c;
+  --accent-green: #2ecc71;
+  --accent-red: #e74c3c;
+  --text-main: #ffffff;
+  --text-dim: #a0a0a0;
+  --border-color: #3f444e;
+}
+
+body {
+  background-color: var(--primary-bg);
+  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+}
+
 .App {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header h1 {
+  color: var(--accent-green);
   text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+  font-weight: 800;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.main-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* --- SIDEBAR --- */
+.player-management {
+  width: 320px;
+  background: var(--sidebar-bg);
+  padding: 20px;
+  border-radius: 16px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.add-to-bank {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.add-to-bank input {
+  flex: 1;
+  background: #2c313a;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: white;
+  padding: 8px 12px;
+}
+
+.btn-save-bank {
+  background: var(--accent-green);
+  color: #121417;
+  padding: 8px 16px;
+  font-weight: bold;
+}
+
+.bank-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.bank-list li {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.bank-list li.in-game {
+  border-left: 3px solid var(--accent-green);
+}
+
+.bank-item-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.bank-item-header span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-join {
+  background: #343a40;
+  color: white;
+  font-size: 11px;
+  padding: 5px;
+}
+
+.btn-join:hover:not(:disabled) {
+  background: var(--accent-green);
+  color: #000;
+}
+
+.btn-del {
+  background: none;
+  color: var(--accent-red);
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-reset {
+  width: 100%;
+  margin-top: 25px;
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+  padding: 12px;
+}
+
+/* --- MAIN CONTENT & TABLE HEADER --- */
+.game-table {
+  flex: 1;
+}
+
+.table-header {
+  padding: 10px 0 25px 0;
+  background: var(--primary-bg);
+  /* position: sticky;
+  top: 0; */
+  z-index: 10; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  padding-top: 10px;
+}
+
+/* --- PLAYER CARD --- */
+.player-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.player-card:hover {
+  transform: translateY(-8px);
+  z-index: 20; 
+  border-color: var(--accent-green);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+}
+
+.btn-leave-x {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  color: var(--text-dim);
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-leave-x:hover { color: var(--accent-red); }
+
+.stats-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stat-box.in { border-bottom: 3px solid #3498db; }
+.stat-box.out { border-bottom: 3px solid #f1c40f; }
+
+.profit-badge {
+  text-align: center;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profit-badge.plus { background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.2); }
+.profit-badge.minus { background: rgba(231, 76, 60, 0.1); border: 1px solid rgba(231, 76, 60, 0.2); }
+
+.profit-amount { font-size: 26px; font-weight: 900; }
+.plus .profit-amount { color: var(--accent-green); }
+.minus .profit-amount { color: var(--accent-red); }
+
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.card-actions button {
+  padding: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  background: #343a40;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.btn-buyin-action { border: 1px solid var(--accent-green) !important; color: var(--accent-green) !important; }
+.btn-cashout-action { border: 1px solid var(--accent-red) !important; color: var(--accent-red) !important; }
+.btn-sell-action { grid-column: span 2; border: 1px solid #9b59b6 !important; color: #9b59b6 !important; }
+
+/* --- MODAL STYLES --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(8px);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.modal-content {
+  background: var(--card-bg);
+  padding: 32px;
+  border-radius: 24px;
+  width: 420px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.input-group { display: flex; flex-direction: column; gap: 10px; }
+
+.input-group label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-green);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* FIX: Select & Options colors */
+.modal-body select, 
+.modal-body input {
+  width: 100%;
+  background: #2c313a; /* Nền tối cố định */
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.modal-body select option {
+  background-color: #1a1d21; /* Nền tối cho dropdown list */
+  color: white;
+}
+
+/* FIX: Hide number spinners */
+.modal-body input::-webkit-outer-spin-button,
+.modal-body input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.modal-body input[type=number] { -moz-appearance: textfield; }
+
+.input-with-suffix { position: relative; display: flex; align-items: center; }
+.input-with-suffix .suffix {
+  position: absolute;
+  right: 18px;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.modal-footer { display: flex; gap: 12px; margin-top: 10px; }
+.btn-confirm { background: var(--accent-green); color: #000; flex: 2; padding: 14px; }
+.btn-cancel { background: #343a40; color: white; flex: 1; padding: 14px; }
+
+/* --- SUMMARY --- */
+.summary {
+  background: #1a1d21;
+  padding: 30px;
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  margin-top: 20px;
+}
+
+.sum-item strong { font-size: 24px; color: var(--accent-green); display: block; }
+.sum-item span { font-size: 11px; text-transform: uppercase; color: var(--text-dim); }
+
+/* Global Button */
+button { border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+button:active { transform: scale(0.95); }
+
+/* --- CẬP NHẬT GAME SETTINGS TRONG SIDEBAR --- */
+.game-settings {
+  background: rgba(0, 0, 0, 0.2); 
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.settings-header h3 {
+  margin: 0 0 12px 0;
+  font-size: 11px;
+  color: var(--accent-green);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 800;
+}
+
+.settings-body {
+  display: flex;
+  flex-direction: column; /* Quan trọng: Chuyển thành hàng dọc để vừa Sidebar */
+  gap: 15px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100% !important; 
+}
+
+.setting-item label {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.setting-info p {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.4;
+  margin-top: 5px;
+  opacity: 0.7;
+}
+
+/* Tinh chỉnh riêng cho input settings để nó gọn hơn trong Sidebar */
+.setting-item .modern-input {
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  background: #1a1d21 !important; /* Làm tối hơn một chút so với card */
+}
+
+/* 1. Xóa bỏ hoàn toàn các nút tăng giảm mặc định */
+.modern-input::-webkit-outer-spin-button,
+.modern-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.modern-input[type=number] {
+  -moz-appearance: textfield; /* Cho Firefox */
+}
+
+/* 2. Style cho Group bao quanh input */
+.modern-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 3. Style chi tiết cho ô input */
+.modern-input {
+  width: 100%;
+  background: #1e2229 !important; /* Màu nền tối sâu */
+  border: 2px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  padding-right: 65px !important; /* Chừa chỗ cho badge 'chips' */
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.modern-input:focus {
+  border-color: var(--accent-green) !important;
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1) !important;
+}
+
+/* 4. Đơn vị 'chips' nằm gọn trong input */
+.input-badge {
+  position: absolute;
+  right: 16px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  pointer-events: none; /* Tránh cản trở khi click */
+}
+
+/* --- HISTORY LOG TỐI GIẢN & TRONG SUỐT --- */
+.history-log {
+  background: transparent !important; /* Trong suốt hoàn toàn */
+  border: 1px dashed rgba(255, 255, 255, 0.1); /* Viền đứt nét nhẹ */
+  border-radius: 12px;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.history-log h3 {
+  font-size: 12px;
+  color: var(--accent-green);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.history-log ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  /* FIX CUỘN: Cố định chiều cao và cho phép cuộn dọc */
+  max-height: 180px; 
+  overflow-y: auto !important; 
+  display: block; /* Đảm bảo là khối để cuộn hoạt động */
+}
+
+.history-log li {
+  font-size: 12px;
+  padding: 6px 0;
+  color: var(--text-dim);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.4;
+}
+
+/* Thêm tiền tố '*' giống style cũ */
+.history-log li::before {
+  content: "*";
+  color: var(--accent-green);
+  font-weight: bold;
+}
+
+.history-log li small {
+  color: rgba(255, 255, 255, 0.3);
+  margin-right: 5px;
+  font-family: monospace;
+}
+
+/* Tùy chỉnh thanh cuộn (Scrollbar) tinh tế */
+.history-log ul::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-log ul::-webkit-scrollbar-thumb {
+  background: rgba(46, 204, 113, 0.3); /* Màu xanh mờ */
+  border-radius: 10px;
+}
+
+.history-log ul::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history-log ul {
+  max-height: 250px; 
+}
+
+.log-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-clear-log {
+  background: transparent;
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  color: var(--accent-red);
+  padding: 2px 8px;
+  font-size: 9px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-clear-log:hover { opacity: 1; }
+
+/* --- RESPONSIVE CHO IPAD (Dưới 1024px) --- */
+@media (max-width: 1024px) {
+  .main-layout {
+    flex-direction: column; /* Đẩy Sidebar lên trên hoặc xuống dưới Grid */
+    gap: 20px;
   }
-  to {
-    transform: rotate(360deg);
+
+  .player-management {
+    width: 100%; /* Sidebar chiếm hết chiều ngang */
+    position: relative; /* Không cần sticky nữa vì grid sẽ nằm dưới */
+    top: 0;
   }
+
+  .bank-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Hiện nhiều cột hơn trên iPad */
+  }
+
+  /* Tăng kích thước nút cho ngón tay dễ bấm */
+  button {
+    min-height: 40px; 
+    font-size: 14px !important;
+  }
+
+  /* Tối ưu Grid người chơi trên iPad */
+  .player-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+/* --- FIX CHO RETINA DISPLAY --- */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .player-card, .modern-input, .history-log {
+    border-width: 1.5px !important; /* Viền dày hơn một chút để trông sắc nét */
+  }
+}
+
+/* --- NÚT END GAME & ADMIN CONTROLS --- */
+.admin-controls {
+  padding: 0 15px;
+  margin-top: 20px;
+}
+
+.btn-end-game {
+  width: 100%;
+  padding: 12px;
+  background-color: #f39c12; /* Màu vàng cam */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-end-game:hover {
+  background-color: #e67e22;
+  transform: translateY(-1px);
+}
+
+.btn-end-game:active {
+  transform: scale(0.98);
+}
+
+.btn-reset {
+  width: 100%;
+  padding: 10px;
+  background-color: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Đường kẻ phân cách trong settings */
+.settings-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 15px 0;
+}
+
+.admin-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Nút End Game thu gọn cho Sidebar */
+.btn-end-game-side {
+  width: 100%;
+  padding: 10px;
+  background: #f39c12;
+  color: white;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+}
+
+/* Nút Reset thu gọn cho Sidebar */
+.btn-reset-side {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  color: var(--accent-red);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.btn-reset-side:hover {
+  background: rgba(231, 76, 60, 0.05);
+  border-color: var(--accent-red);
+}
+
+/* Viền đỏ và đổi màu nền nhẹ khi trùng tên */
+.add-to-bank input.duplicate-error {
+  border: 2px solid #e74c3c !important;
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #ff6b6b;
+  outline: none;
+}
+
+/* Hiệu ứng chuyển cảnh mượt cho viền */
+.add-to-bank input {
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Làm mờ nút Save để người dùng biết không bấm được */
+.btn-save-bank:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+/* Undo button*/
+/* Layout for the Log Header */
+.log-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* The beautiful Undo Button */
+.btn-revert-action {
+  background: linear-gradient(135deg, #f39c12, #d35400);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(211, 84, 0, 0.3);
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.btn-revert-action:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.btn-revert-action:disabled {
+  background: #2c313a;
+  box-shadow: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Bulk buy in */
+.btn-bulk-buyin {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  margin-bottom: 5px;
+  transition: all 0.2s ease;
+}
+
+.btn-bulk-buyin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+}
+
+.btn-bulk-buyin:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
 }
