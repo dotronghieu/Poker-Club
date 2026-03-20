@@ -141,9 +141,7 @@ function App() {
     }
   };
 
-  const isOverLimit =
-    modalConfig.type === 'buyin' &&
-    (modalConfig.player.buyIn + (parseInt(modalConfig.amount) || 0) > parseInt(gameSettings.maxBuyInAmount));
+ const isOverLimit = Number(modalConfig.amount) > Number(gameSettings.maxBuyInAmount);
 
   const openModal = (player, type) => {
     setModalConfig({

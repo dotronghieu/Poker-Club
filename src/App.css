@@ -691,6 +691,91 @@ button:active {
   }
 }
 
+/* --- ULTIMATE RESPONSIVE FOR IPHONE 17 PRO MAX --- */
+@media (max-width: 480px) {
+  .App {
+    padding: 10px; /* Thắt chặt padding để lấy thêm diện tích */
+  }
+
+  header h1 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .main-layout {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* SIDEBAR: Chuyển thành dạng "Full Width" và tinh gọn */
+  .player-management {
+    width: 100% !important;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .add-to-bank {
+    flex-direction: row; /* Giữ input và nút trên 1 hàng */
+  }
+
+  .bank-list {
+    grid-template-columns: 1fr; /* iPhone hẹp nên để 1 cột cho dễ nhìn */
+    gap: 8px;
+  }
+
+  /* GAME GRID: Chuyển về 1 cột duy nhất */
+  .player-grid {
+    grid-template-columns: 1fr !important;
+    gap: 15px;
+  }
+
+  /* PLAYER CARD: Thu gọn để không phải cuộn quá nhiều */
+  .player-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .profit-amount {
+    font-size: 24px;
+  }
+
+  .stats-container {
+    gap: 8px;
+  }
+
+  .stat-box {
+    padding: 8px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
+
+  /* MODAL: iPhone cần Modal chiếm gần hết chiều ngang */
+  .modal-content {
+    width: 95% !important;
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .modal-body {
+    gap: 15px;
+  }
+
+  /* Tăng kích thước nút bấm cho ngón cái (Thumb-friendly) */
+  button {
+    min-height: 48px; /* Tiêu chuẩn Apple cho touch target */
+    font-size: 14px;
+  }
+
+  /* Tối ưu Log Footer cho màn hình hẹp */
+  .log-footer {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
+
 /* --- FIX CHO RETINA DISPLAY --- */
 @media (-webkit-min-device-pixel-ratio: 2),
 (min-resolution: 192dpi) {
