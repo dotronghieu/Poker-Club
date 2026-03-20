@@ -281,7 +281,7 @@ function App() {
   };
   return (
     <div className="App">
-      <header><h1>♠️ POKER MANAGER PRO</h1></header>
+      <header><h1>♠️ POKER MANAGER PRO ♠️ </h1></header>
 
       <div className="main-layout">
         <aside className="player-management">
@@ -361,7 +361,7 @@ function App() {
             <div className="settings-body">
               {/* Giữ nguyên các input cũ của bạn */}
               <div className="setting-item">
-                <label>Max Buy-in Limit</label>
+                <label>Max Buy-in, cash-out Limit</label>
                 <div className="modern-input-group">
                   <input
                     className="modern-input"

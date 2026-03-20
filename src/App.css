@@ -348,7 +348,7 @@ header h1 {
 }
 
 .modal-body select option {
-    /* Nền tối cho dropdown list */
+  /* Nền tối cho dropdown list */
   background-color: #1a1d21;
   color: white;
 }
@@ -515,12 +515,12 @@ button:active {
 /* 3. Style chi tiết cho ô input */
 .modern-input {
   width: 100%;
-    /* Màu nền tối sâu */
+  /* Màu nền tối sâu */
   background: #1e2229 !important;
   border: 2px solid var(--border-color) !important;
   border-radius: 12px !important;
   padding: 12px 16px !important;
-    /* Chừa chỗ cho badge 'chips' */
+  /* Chừa chỗ cho badge 'chips' */
   padding-right: 65px !important;
   color: #ffffff !important;
   font-size: 15px !important;
@@ -544,15 +544,15 @@ button:active {
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-    /* Tránh cản trở khi click */
+  /* Tránh cản trở khi click */
   pointer-events: none;
 }
 
 /* --- HISTORY LOG TỐI GIẢN & TRONG SUỐT --- */
 .history-log {
-    /* Trong suốt hoàn toàn */
+  /* Trong suốt hoàn toàn */
   background: transparent !important;
-    /* Viền đứt nét nhẹ */
+  /* Viền đứt nét nhẹ */
   border: 1px dashed rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 10px;
@@ -574,7 +574,7 @@ button:active {
   /* FIX CUỘN: Cố định chiều cao và cho phép cuộn dọc */
   max-height: 180px;
   overflow-y: auto !important;
-    /* Đảm bảo là khối để cuộn hoạt động */
+  /* Đảm bảo là khối để cuộn hoạt động */
   display: block;
 }
 
@@ -646,10 +646,10 @@ button:active {
 
 .btn-clear-log:disabled {
   /* Use !important to kill the red from the base class */
-  color: #555 !important; 
+  color: #555 !important;
   background: transparent !important;
   border: 1px solid #333 !important;
-  
+
   /* Visual cues for 'locked' */
   opacity: 0.4;
   cursor: not-allowed;
@@ -692,87 +692,158 @@ button:active {
 }
 
 /* --- ULTIMATE RESPONSIVE FOR IPHONE 17 PRO MAX --- */
+/* --- ULTIMATE WIDE-CARD VERSION FOR IPHONE 17 PRO MAX --- */
 @media (max-width: 480px) {
-  .App {
-    padding: 10px; /* Thắt chặt padding để lấy thêm diện tích */
+
+  /* 1. Global Reset - Remove all side-squeezing */
+  .App,
+  .main-layout {
+    padding: 10px 0 !important;
+    width: 100vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    overflow-x: hidden;
   }
 
+  /* 2. THE FIX: Expand the Game Table and Grid */
+  .game-table {
+    width: 100% !important;
+    max-width: 340px !important;
+    /* Forces cards to be wider than 300px */
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .player-grid {
+    width: 100% !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 15px !important;
+  }
+
+  /* 3. The Player Card - Matching the new width */
+  .player-card {
+    width: 100% !important;
+    /* Takes full 340px from parent */
+    padding: 20px !important;
+    border-radius: 18px !important;
+    box-sizing: border-box;
+    margin-bottom: 15px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    /* Deeper shadow for Retina */
+  }
+
+  /* 4. Header & Title - Perfectly Centered */
   header h1 {
-    font-size: 20px;
+    font-size: 24px !important;
+    white-space: nowrap;
+    text-align: center;
     margin-bottom: 20px;
   }
 
-  .main-layout {
+  .table-header {
+    width: 100%;
+    display: flex;
     flex-direction: column;
-    gap: 15px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
   }
 
-  /* SIDEBAR: Chuyển thành dạng "Full Width" và tinh gọn */
+  .table-header h2 {
+    font-size: 18px !important;
+    margin: 0 !important;
+  }
+
+  /* 4. BALANCE STATUS: Size & Shape only (Colors come from JS/Main CSS) */
+  .balance-status {
+    font-size: 13px !important;
+    padding: 4px 12px !important;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 0 auto !important;
+    /* Remove background, color, and border from here! */
+  }
+
+  /* These should be OUTSIDE the @media query so they apply everywhere */
+  .balance-status.balanced {
+    background: rgba(76, 175, 80, 0.15) !important;
+    /* Green tint */
+    color: #4caf50 !important;
+    /* Green text */
+    border: 1px solid rgba(76, 175, 80, 0.3) !important;
+  }
+
+  .balance-status.warning {
+    background: rgba(255, 68, 68, 0.15) !important;
+    /* Red tint */
+    color: #ff4444 !important;
+    /* Red text */
+    border: 1px solid rgba(255, 68, 68, 0.3) !important;
+  }
+
+  /* 6. Sidebar (Player Management) - Same width as cards */
   .player-management {
-    width: 100% !important;
-    padding: 15px;
-    border-radius: 12px;
+    width: 90% !important;
+    max-width: 340px !important;
+    margin: 0 auto 20px auto !important;
+    padding: 15px !important;
   }
 
-  .add-to-bank {
-    flex-direction: row; /* Giữ input và nút trên 1 hàng */
-  }
-
-  .bank-list {
-    grid-template-columns: 1fr; /* iPhone hẹp nên để 1 cột cho dễ nhìn */
-    gap: 8px;
-  }
-
-  /* GAME GRID: Chuyển về 1 cột duy nhất */
-  .player-grid {
-    grid-template-columns: 1fr !important;
+  /* 7. Summary - 2x2 Grid */
+ .summary {
+    width: 96% !important;
+    max-width: 340px;
+    margin: 20px auto !important;
+    padding: 20px 15px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr; 
     gap: 15px;
+    /* Changed from center to start (left) */
+    justify-items: start !important; 
+    align-items: center;
+    box-sizing: border-box;
   }
 
-  /* PLAYER CARD: Thu gọn để không phải cuộn quá nhiều */
-  .player-card {
-    padding: 16px;
-    border-radius: 16px;
-  }
-
-  .profit-amount {
-    font-size: 24px;
-  }
-
-  .stats-container {
-    gap: 8px;
-  }
-
-  .stat-box {
-    padding: 8px;
-  }
-
-  .stat-value {
-    font-size: 14px;
-  }
-
-  /* MODAL: iPhone cần Modal chiếm gần hết chiều ngang */
-  .modal-content {
-    width: 95% !important;
-    padding: 20px;
-    border-radius: 20px;
-  }
-
-  .modal-body {
-    gap: 15px;
-  }
-
-  /* Tăng kích thước nút bấm cho ngón cái (Thumb-friendly) */
-  button {
-    min-height: 48px; /* Tiêu chuẩn Apple cho touch target */
-    font-size: 14px;
-  }
-
-  /* Tối ưu Log Footer cho màn hình hẹp */
-  .log-footer {
+  .sum-item {
+    display: flex;
     flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+    /* Ensure internal text is left-aligned */
+    align-items: flex-start !important; 
+    text-align: left !important;
+    width: 100%;
+  }
+
+  .sum-item strong {
+    font-size: 22px !important;
+    margin-top: 2px;
+  }
+
+  /* 8. BALANCE STATUS: Left aligned at the bottom */
+  .sum-item:last-child {
+    grid-column: span 2;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 15px;
+    width: 100%;
+    /* This ensures the badge itself stays on the left */
+    display: flex;
+    justify-content: flex-start !important; 
+  }
+
+  /* 8. Fix iOS Input Zoom */
+  input,
+  .modern-input {
+    font-size: 16px !important;
   }
 }
 
