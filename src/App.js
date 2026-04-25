@@ -130,7 +130,7 @@ function App() {
   };
 
   const joinGame = (name) => {
-    if (activePlayers.length < 10 && !isAtTable(name)) {
+    if (activePlayers.length < 20 && !isAtTable(name)) {
       setActivePlayers([...activePlayers, { name, buyIn: 0, cashOut: 0 }]);
     }
   };
@@ -406,7 +406,7 @@ function App() {
         </aside>
 
         <main className="game-table">
-          <div className="table-header"><h2>ACTIVE TABLE ({activePlayers.length}/10)</h2></div>
+          <div className="table-header"><h2>ACTIVE TABLE ({activePlayers.length}/20)</h2></div>
           <div className="player-grid">
             {activePlayers.map((player, index) => {
               const profit = player.cashOut - player.buyIn;
