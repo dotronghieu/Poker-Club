@@ -1,42 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import * as XLSX from 'xlsx';
+import { db } from './firebase';
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
 
 function App() {
-  const [activePlayers, setActivePlayers] = useState(() => {
-    const saved = localStorage.getItem('poker_active_players');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [activePlayers, setActivePlayers] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [gameSettings, setGameSettings] = useState({ maxSellAmount: 1000, maxBuyInAmount: 1000 });
+  const [playerBank, setPlayerBank] = useState([]);
 
-  const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem('poker_game_history');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // ID phòng chơi cố định trên Cloud (Mọi người cùng truy cập phòng này)
+  const roomId = "poker_room_1";
 
-  const [gameSettings, setGameSettings] = useState(() => {
-    const saved = localStorage.getItem('poker_settings');
-    return saved ? JSON.parse(saved) : { maxSellAmount: 1000, maxBuyInAmount: 1000 };
-  });
-  const [playerBank, setPlayerBank] = useState(() => {
-    const saved = localStorage.getItem('pokerPlayerBank');
-    return saved ? JSON.parse(saved) : [];
-  });
-  // Tự động lưu Bank và History vào LocalStorage
+  // --- 1. KẾT NỐI REAL-TIME VỚI FIRESTORE ---
   useEffect(() => {
-    localStorage.setItem('pokerPlayerBank', JSON.stringify(playerBank));
-  }, [playerBank]);
-  useEffect(() => {
-    localStorage.setItem('poker_active_players', JSON.stringify(activePlayers));
-  }, [activePlayers]);
+    const roomRef = doc(db, "pokerRooms", roomId);
+    
+    // onSnapshot giúp tự động cập nhật giao diện khi có thay đổi từ bất kỳ điện thoại nào
+    const unsubscribe = onSnapshot(roomRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setActivePlayers(data.activePlayers || []);
+        setHistory(data.history || []);
+        setGameSettings(data.gameSettings || { maxSellAmount: 1000, maxBuyInAmount: 1000 });
+        setPlayerBank(data.playerBank || []);
+      } else {
+        // Nếu phòng chưa tồn tại trên Firestore, khởi tạo dữ liệu mặc định ban đầu
+        setDoc(roomRef, {
+          activePlayers: [],
+          history: [],
+          gameSettings: { maxSellAmount: 1000, maxBuyInAmount: 1000 },
+          playerBank: []
+        });
+      }
+    });
 
-  useEffect(() => {
-    localStorage.setItem('poker_game_history', JSON.stringify(history));
-  }, [history]);
+    return () => unsubscribe();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem('poker_settings', JSON.stringify(gameSettings));
-  }, [gameSettings]);
-
+  // --- 2. HÀM HỖ TRỢ ĐẨY DỮ LIỆU LÊN CLOUD ---
+  const syncToCloud = async (updatedData) => {
+    try {
+      const roomRef = doc(db, "pokerRooms", roomId);
+      await setDoc(roomRef, updatedData, { merge: true });
+    } catch (error) {
+      console.error("Lỗi đồng bộ Firebase: ", error);
+    }
+  };
 
   const [newBankName, setNewBankName] = useState('');
 
@@ -56,12 +67,9 @@ function App() {
 
     let newPlayers = [...activePlayers];
 
-    // --- NEW: Handle Bulk Revert ---
     if (lastAction.msg.includes("Bulk Buy-in")) {
-      // Reverting bulk sets everyone back to 0 buy-in
       newPlayers = newPlayers.map(p => ({ ...p, buyIn: 0 }));
     }
-    // --- Existing logic for specific players ---
     else if (lastAction.msg.includes("Buy-in")) {
       const name = lastAction.msg.split(" Buy-in")[0];
       const amount = parseInt(lastAction.msg.replace(/,/g, "").match(/\d+/));
@@ -72,10 +80,13 @@ function App() {
       const amount = parseInt(lastAction.msg.replace(/,/g, "").match(/\d+/));
       newPlayers = newPlayers.map(p => p.name === name ? { ...p, cashOut: p.cashOut - amount } : p);
     }
-    // ... (keep your "sold" logic here)
 
+    const newHistory = history.slice(1);
     setActivePlayers(newPlayers);
-    setHistory(history.slice(1));
+    setHistory(newHistory);
+    
+    // Lưu lên Cloud
+    syncToCloud({ activePlayers: newPlayers, history: newHistory });
   };
 
   const handleBulkBuyIn = () => {
@@ -92,21 +103,26 @@ function App() {
         ...player,
         buyIn: amount
       }));
-      setActivePlayers(updatedPlayers);
       const logMsg = `Bulk Buy-in: ${amount.toLocaleString()} for all players`;
-      setHistory(prev => [{ msg: logMsg, time: new Date().toLocaleTimeString(), isBulk: true, amount: amount }, ...prev]);
+      const updatedHistory = [{ msg: logMsg, time: new Date().toLocaleTimeString(), isBulk: true, amount: amount }, ...history];
+      
+      setActivePlayers(updatedPlayers);
+      setHistory(updatedHistory);
+
+      // Lưu lên Cloud
+      syncToCloud({ activePlayers: updatedPlayers, history: updatedHistory });
     }
   };
 
   const resetGame = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu ván bài này?")) {
+      const emptyData = { activePlayers: [], history: [], gameSettings, playerBank };
       setActivePlayers([]);
       setHistory([]);
-      localStorage.removeItem('poker_active_players');
-      localStorage.removeItem('poker_game_history');
-      // Giữ lại settings hoặc xóa tùy bạn
+      syncToCloud(emptyData);
     }
   };
+
   const [modalConfig, setModalConfig] = useState({
     show: false,
     type: '', // 'buyin' or 'cashout'
@@ -120,35 +136,45 @@ function App() {
 
   const addToBank = () => {
     if (newBankName.trim() && !playerBank.includes(newBankName)) {
-      setPlayerBank([...playerBank, newBankName.trim()]);
+      const updatedBank = [...playerBank, newBankName.trim()];
+      setPlayerBank(updatedBank);
       setNewBankName('');
+      syncToCloud({ playerBank: updatedBank });
     }
   };
 
   const removeFromBank = (name) => {
-    if (window.confirm(`Xóa ${name}?`)) setPlayerBank(playerBank.filter(n => n !== name));
+    if (window.confirm(`Xóa ${name}?`)) {
+      const updatedBank = playerBank.filter(n => n !== name);
+      setPlayerBank(updatedBank);
+      syncToCloud({ playerBank: updatedBank });
+    }
   };
 
   const joinGame = (name) => {
     if (activePlayers.length < 20 && !isAtTable(name)) {
-      setActivePlayers([...activePlayers, { name, buyIn: 0, cashOut: 0 }]);
+      const updatedPlayers = [...activePlayers, { name, buyIn: 0, cashOut: 0 }];
+      setActivePlayers(updatedPlayers);
+      syncToCloud({ activePlayers: updatedPlayers });
     }
   };
 
   const leaveTable = (index) => {
     if (window.confirm(`Cho ${activePlayers[index].name} rời bàn?`)) {
-      setActivePlayers(activePlayers.filter((_, i) => i !== index));
+      const updatedPlayers = activePlayers.filter((_, i) => i !== index);
+      setActivePlayers(updatedPlayers);
+      syncToCloud({ activePlayers: updatedPlayers });
     }
   };
 
- const isOverLimit = Number(modalConfig.amount) > Number(gameSettings.maxBuyInAmount);
+  const isOverLimit = Number(modalConfig.amount) > Number(gameSettings.maxBuyInAmount);
 
   const openModal = (player, type) => {
     setModalConfig({
       show: true,
       type: type,
       player: player,
-      amount: '' // Start empty for clean entry
+      amount: ''
     });
   };
 
@@ -160,20 +186,14 @@ function App() {
     const { player, type, amount } = modalConfig;
     const numAmount = parseInt(amount);
 
-    // 1. Validation: Check if it's a valid number and greater than 0
     if (isNaN(numAmount) || numAmount <= 0) return;
 
-    // 2. Max Buy-in Check
     if (type === 'buyin') {
       const maxLimit = parseInt(gameSettings.maxBuyInAmount);
-      if (player.buyIn + numAmount > maxLimit) {
-        // Since we added the red border, this is just a final safety net
-        return;
-      }
+      if (player.buyIn + numAmount > maxLimit) return;
     }
 
-    // 3. Update Players using functional update (prev)
-    setActivePlayers(prevPlayers => prevPlayers.map(p => {
+    const updatedPlayers = activePlayers.map(p => {
       if (p.name === player.name) {
         return {
           ...p,
@@ -182,20 +202,23 @@ function App() {
         };
       }
       return p;
-    }));
+    });
 
-    // 4. Update History
     const logMsg = type === 'buyin'
       ? `${player.name} Buy-in +${numAmount.toLocaleString()}`
       : `${player.name} Cash-out +${numAmount.toLocaleString()}`;
 
-    setHistory(prevHistory => [
-      { msg: logMsg, time: new Date().toLocaleTimeString() },
-      ...prevHistory
-    ]);
+    const updatedHistory = [
+      { id: Date.now(), msg: logMsg, timestamp: new Date().toLocaleTimeString() },
+      ...history
+    ];
 
-    // 5. Cleanup
+    setActivePlayers(updatedPlayers);
+    setHistory(updatedHistory);
     closeModal();
+
+    // Lưu lên Cloud
+    syncToCloud({ activePlayers: updatedPlayers, history: updatedHistory });
   };
 
   const executeTransfer = () => {
@@ -212,9 +235,9 @@ function App() {
       return;
     }
 
-    const newPlayers = [...activePlayers];
-    newPlayers[sellerIndex].cashOut += numAmount;
-    newPlayers[buyerIndex].buyIn += numAmount;
+    const updatedPlayers = [...activePlayers];
+    updatedPlayers[sellerIndex].cashOut += numAmount;
+    updatedPlayers[buyerIndex].buyIn += numAmount;
 
     const logEntry = {
       id: Date.now(),
@@ -222,19 +245,22 @@ function App() {
       timestamp: new Date().toLocaleTimeString()
     };
 
-    setHistory([logEntry, ...history]);
-    setActivePlayers(newPlayers);
+    const updatedHistory = [logEntry, ...history];
+
+    setActivePlayers(updatedPlayers);
+    setHistory(updatedHistory);
     setTransferData({ show: false, sellerIndex: null, buyerIndex: "", amount: "" });
+
+    // Lưu lên Cloud
+    syncToCloud({ activePlayers: updatedPlayers, history: updatedHistory });
   };
 
   const totalBuyIn = activePlayers.reduce((sum, p) => sum + p.buyIn, 0);
   const totalCashOut = activePlayers.reduce((sum, p) => sum + p.cashOut, 0);
-  // ... bên trong function App()
 
   const handleEndGame = () => {
     if (!window.confirm("Bạn có chắc muốn kết thúc và xuất file Excel?")) return;
 
-    // 1. Chuẩn bị dữ liệu
     const summaryData = activePlayers.map(p => ({
       "Tên người chơi": p.name,
       "Tổng Buy-in": p.buyIn,
@@ -248,30 +274,24 @@ function App() {
       "Nội dung sự kiện": h.msg
     }));
 
-    // 2. Tạo Sheets
     const wsSummary = XLSX.utils.json_to_sheet(summaryData);
     const wsLogs = XLSX.utils.json_to_sheet(logData);
 
-    // --- HÀM TỰ ĐỘNG CĂN CHỈNH ĐỘ RỘNG CỘT (AUTO-WIDTH) ---
     const autoWidth = (data) => {
       if (data.length === 0) return [];
-      // Lấy danh sách tiêu đề cột
       const keys = Object.keys(data[0]);
       return keys.map(key => {
-        // Tìm độ dài lớn nhất của ký tự trong cột đó (bao gồm cả tiêu đề)
         const maxLen = data.reduce((max, row) => {
           const cellValue = row[key] ? row[key].toString() : "";
           return Math.max(max, cellValue.length);
         }, key.length);
-        return { wch: maxLen + 5 }; // Thêm 5 ký tự đệm cho thoáng
+        return { wch: maxLen + 5 };
       });
     };
 
-    // Áp dụng độ rộng cho từng sheet
     wsSummary['!cols'] = autoWidth(summaryData);
     wsLogs['!cols'] = autoWidth(logData);
 
-    // 3. Xuất Workbook
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, wsSummary, "Tong Ket");
     XLSX.utils.book_append_sheet(wb, wsLogs, "Lich Su Game");
@@ -279,6 +299,7 @@ function App() {
     const fileName = `Poker_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
     XLSX.writeFile(wb, fileName);
   };
+
   return (
     <div className="App">
       <header><h1>♠️ POKER MANAGER PRO ♠️ </h1></header>
@@ -315,9 +336,7 @@ function App() {
             ))}
           </ul>
 
-          {/* HIỂN THỊ GAME LOG TRONG SIDEBAR */}
           <section className="history-log">
-            {/* Wrap title and button in a header div */}
             <div className="log-header">
               <h3>📜 Game Log</h3>
               <button
@@ -342,8 +361,10 @@ function App() {
               <span>Events: {history.length}</span>
               <button
                 className="btn-clear-log"
-                onClick={() => setHistory([])}
-                /* Button is disabled if there are any players at the table */
+                onClick={() => {
+                  setHistory([]);
+                  syncToCloud({ history: [] });
+                }}
                 disabled={activePlayers.length > 0}
                 title={activePlayers.length > 0 ? "Cannot clear log while game is active" : ""}
               >
@@ -352,14 +373,12 @@ function App() {
             </div>
           </section>
 
-          {/* --- GAME SETTINGS GỘP CẢ ADMIN ACTIONS --- */}
           <section className="game-settings">
             <div className="settings-header">
               <h3>⚙️ Game Settings</h3>
             </div>
 
             <div className="settings-body">
-              {/* Giữ nguyên các input cũ của bạn */}
               <div className="setting-item">
                 <label>Max Buy-in, cash-out Limit</label>
                 <div className="modern-input-group">
@@ -367,7 +386,12 @@ function App() {
                     className="modern-input"
                     type="number"
                     value={gameSettings.maxBuyInAmount}
-                    onChange={(e) => setGameSettings({ ...gameSettings, maxBuyInAmount: parseInt(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      const updatedSettings = { ...gameSettings, maxBuyInAmount: val };
+                      setGameSettings(updatedSettings);
+                      syncToCloud({ gameSettings: updatedSettings });
+                    }}
                   />
                   <span className="input-badge">chips</span>
                 </div>
@@ -380,16 +404,19 @@ function App() {
                     className="modern-input"
                     type="number"
                     value={gameSettings.maxSellAmount}
-                    onChange={(e) => setGameSettings({ ...gameSettings, maxSellAmount: parseInt(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      const updatedSettings = { ...gameSettings, maxSellAmount: val };
+                      setGameSettings(updatedSettings);
+                      syncToCloud({ gameSettings: updatedSettings });
+                    }}
                   />
                   <span className="input-badge">chips</span>
                 </div>
               </div>
 
-              {/* Kẻ một đường gạch ngang nhẹ để phân cách */}
               <div className="settings-divider"></div>
 
-              {/* Đưa 2 nút vào đây */}
               <div className="admin-quick-actions">
                 <button className="btn-bulk-buyin" onClick={handleBulkBuyIn} disabled={activePlayers.length === 0}>
                   💰 BULK BUY-IN
@@ -498,7 +525,7 @@ function App() {
                     type="number"
                     autoFocus
                     placeholder="0"
-                    className={isOverLimit ? 'invalid-limit' : ''} // Dynamic class
+                    className={isOverLimit ? 'invalid-limit' : ''}
                     value={modalConfig.amount}
                     onChange={(e) => setModalConfig({ ...modalConfig, amount: e.target.value })}
                     onKeyDown={(e) => e.key === 'Enter' && !isOverLimit && handleConfirmAction()}
